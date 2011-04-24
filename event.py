@@ -19,6 +19,16 @@ import ConfigParser
 
 cgitb.enable()
 
+def htmleventlink(eventid):
+    """returns a string with html code for a ical download-link to event id
+    """
+    
+    return """<a href=event.py?geticalendar=%s>
+<img src="calendar.png" alt="Termin im iCalendar Format"> 
+</a>""" % eventid
+    
+    
+
 
 def printhead():
     print """
@@ -64,7 +74,7 @@ def endbody():
 
 
 
-def main():
+def showcalendartable():
 
     config = ConfigParser.ConfigParser()
     config.read('trolug.cfg')
@@ -74,8 +84,8 @@ def main():
                             passwd = config.get('mysql','passwd'),
                             db = config.get('mysql','db'))
     cursor = conn.cursor ()
-    cursor.execute ("SELECT VERSION()")
-    row = cursor.fetchone ()
+#    cursor.execute ("SELECT VERSION()")
+#    row = cursor.fetchone ()
     
     printhead()
     print("""
@@ -83,20 +93,21 @@ def main():
 
 """)
 
-#     	maxreg 	link 	tutor 	organisation 	kategorie 	anforderungen 	isanmeldungnotwendig 	issondertermin
-    sqlabfrage =("""
-SELECT * 
+# eventid 	anfangszeit 	schlusszeit 	anmeldeschluss 	thema 	maxreg 	link 	tutor
+# organisation 	kategorie 	anforderungen 	isanmeldungnotwendig 	issondertermin
+
+    cursor.execute("""SELECT * 
 FROM `event` 
 WHERE `anfangszeit` > '1998-01-02 21:30:08'
 ORDER BY `anfangszeit` ASC
 LIMIT 0 , 30 
 """)
 
-    cursor.execute(sqlabfrage)
     eventlist = cursor.fetchall() 
     starttable()
 
     print("""
+<th> .ics </th>
 <th> Datum </th>
 <th> Thema </th>
 <th> Dozent </th>
@@ -113,6 +124,7 @@ LIMIT 0 , 30
         dbantwort = dict(zip(Spaltennamen,event))
 
         print("<tr>")
+        print("""<td> %s </td>""") % htmleventlink(dbantwort['eventid'])
         print("""
 <td> %(anfangszeit)s </td>
 <td> <a href="%(link)s">%(thema)s </a></td>
@@ -120,22 +132,65 @@ LIMIT 0 , 30
 <td> %(kategorie)s </td>
 """)  % dict(dbantwort)
 
-
         print("</td>")
-
         print("</tr>")
 
     endtable()
+    print("""<h4> Legende </h4>
+<img src="calendar.png" alt="Termin im iCalendar Format"> 
+Termin im iCalendar Format herunterladen
 
+<h4>Nächste Schritte</h4>
+<ul> 
+<li>Umlautproblem eliminieren </li>
+<li>Sinnvolle Daten eingeben </li>
+<li>.css ansehnlich gestalten </li>
+</ul> 
 
+""")
     endbody()
-
 
     cursor.close ()
     conn.close ()
+
+
+def generatevcard(eventid):
+    print("""Content-type: text/calendar
+Content-Disposition: attachment; filename=trolug.ics
+""")
+
+    print("""
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:http://www.example.com/calendarapplication/
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:%s@example.com
+ORGANIZER;CN="Jonas Stein, TroLUG":MAILTO:news@jonasstein.de
+SUMMARY:TroLUG Treffen
+DESCRIPTION:Workshop zu Opensource
+CLASS:PUBLIC
+DTSTART:20001230T190000Z
+DTEND:20001230T210000Z
+DTSTAMP:20001230T190000Z
+END:VEVENT
+END:VCALENDAR
+""") % eventid
+
+
+
+def main():
+    form = cgi.FieldStorage()
+#    if "name" not in form or "addr" not in form:
+    if "geticalendar" in form:
+        generatevcard(form["geticalendar"].value)
+    else: 
+        showcalendartable()
 
 
 
 # TODO: liste muss anderes FORMAT bekommen
 if __name__ == '__main__':
     main()
+
+ 
