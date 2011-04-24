@@ -145,6 +145,7 @@ Termin im iCalendar Format herunterladen
 <li>Umlautproblem eliminieren </li>
 <li>Sinnvolle Daten eingeben </li>
 <li>.css ansehnlich gestalten </li>
+<li>Anmeldeformular verlinken </li>
 </ul> 
 
 """)
