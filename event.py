@@ -1,4 +1,4 @@
-#!/usr/bin/python2.5
+#!/usr/bin/python2.6
 # -*- coding: utf-8 -*-
 
 """USAGE: 
@@ -146,6 +146,8 @@ Termin im iCalendar Format herunterladen
 <li>Sinnvolle Daten eingeben </li>
 <li>.css ansehnlich gestalten </li>
 <li>Anmeldeformular verlinken </li>
+<li>Anmeldung: Initialen auflisten </li>
+<li>Mail als Hash speichern </li>
 </ul> 
 
 """)
