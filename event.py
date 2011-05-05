@@ -7,7 +7,9 @@
 __version__ = 0.03
 __author__ = "Jonas Stein"
 
-
+""" Naechste Schritte:
+in Webseite mit iframe einbinden
+"""
 
 
 import MySQLdb
